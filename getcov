@@ -63,8 +63,7 @@ exclude_data()
 {
     LCOV --remove $COVERAGE_INFO_DIR/${LCOV_INFO} "Developer/SDKs/*" -d "${OBJ_DIR}" -o $COVERAGE_INFO_DIR/${LCOV_INFO}
     LCOV --remove $COVERAGE_INFO_DIR/${LCOV_INFO} "main.m" -d "${OBJ_DIR}" -o $COVERAGE_INFO_DIR/${LCOV_INFO}
-    LCOV --remove $COVERAGE_INFO_DIR/${LCOV_INFO} "wb3rdcomponent/*" -d "${OBJ_DIR}" -o $COVERAGE_INFO_DIR/${LCOV_INFO}
-    
+
     # Remove other patterns here...
 }
 
