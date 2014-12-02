@@ -1,0 +1,30 @@
+#!/bin/sh
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source ${DIR}/envcov.sh
+
+ALL_COVERAGE=CoverageAll.info
+INFO_DIR=${DIR}/coverage
+MERGE_CMD_P1=''
+REPORT_DIR=${DIR}/report
+
+if [ -e $INFO_DIR/$ALL_COVERAGE ]; then
+	rm -r $INFO_DIR/$ALL_COVERAGE
+fi
+
+if [ -e $REPORT_DIR ]; then
+	rm -r $REPORT_DIR
+fi
+mkdir $REPORT_DIR
+
+for file in ` ls $INFO_DIR`
+do
+	MERGE_CMD_P1="$MERGE_CMD_P1 -a $INFO_DIR/$file"
+done
+
+LCOV $MERGE_CMD_P1 -o $INFO_DIR/$ALL_COVERAGE
+
+"${LCOV_PATH}/genhtml" --output-directory ${REPORT_DIR} $INFO_DIR/$ALL_COVERAGE
+cd ${REPORT_DIR}
+echo "open index.html===================="
+open index.html
+

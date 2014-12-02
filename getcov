@@ -1,0 +1,88 @@
+#!/bin/sh
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+linenum=`wc -l $DIR/envs.sh |awk '{print $1}'`
+Num1=1
+FileNum=1
+REPORT_DIR=${DIR}/report
+COVERAGE_INFO_DIR=${DIR}/coverage
+OBJS_NORMAL_DIR=$DIR/objs
+GCDA_DIR=$DIR/gcda
+
+remove_old_objs_dir()
+{
+    if [ -e $OBJS_NORMAL_DIR ]; then
+        rm -r $OBJS_NORMAL_DIR
+    fi
+    mkdir $OBJS_NORMAL_DIR
+}
+
+remove_old_coverage_dir()
+{
+    if [ -e $COVERAGE_INFO_DIR ]; then
+        rm -r $COVERAGE_INFO_DIR
+    fi
+    mkdir $COVERAGE_INFO_DIR
+}
+
+remove_old_report_dir()
+{
+    if [ -e $REPORT_DIR ]; then
+        rm -r $REPORT_DIR
+    fi
+    mkdir $REPORT_DIR
+}
+
+gather_objs()
+{
+    while [ $Num1 -lt $linenum ]
+    do
+        Num2=`expr   $Num1   +   1`
+        sed   -n   "${Num1},   ${Num2}p "   $DIR/envs.sh   >   $DIR/env.sh  
+        
+        source ${DIR}/envcov.sh
+
+        find $OBJ_DIR -type f -exec cp {} $OBJS_NORMAL_DIR \;
+
+        Num1=`expr   $Num2   +   1`
+        FileNum=`expr   $FileNum   +   1`
+
+    done
+}
+
+merge_gcda_to_objs()
+{
+    mv -f $GCDA_DIR/* $OBJS_NORMAL_DIR
+}
+
+gather_coverage()
+{
+    LCOV --capture --derive-func-data -d "${OBJS_NORMAL_DIR}" -o $COVERAGE_INFO_DIR/${LCOV_INFO}
+}
+
+exclude_data()
+{
+    LCOV --remove $COVERAGE_INFO_DIR/${LCOV_INFO} "Developer/SDKs/*" -d "${OBJ_DIR}" -o $COVERAGE_INFO_DIR/${LCOV_INFO}
+    LCOV --remove $COVERAGE_INFO_DIR/${LCOV_INFO} "main.m" -d "${OBJ_DIR}" -o $COVERAGE_INFO_DIR/${LCOV_INFO}
+    LCOV --remove $COVERAGE_INFO_DIR/${LCOV_INFO} "wb3rdcomponent/*" -d "${OBJ_DIR}" -o $COVERAGE_INFO_DIR/${LCOV_INFO}
+    
+    # Remove other patterns here...
+}
+
+generate_report()
+{
+    "${LCOV_PATH}/genhtml" --output-directory ${REPORT_DIR} $COVERAGE_INFO_DIR/${LCOV_INFO}
+    rm -f $DIR/envs.sh
+    rm -f $DIR/env.sh
+    cd ${REPORT_DIR}
+    echo "open index.html===================="
+    open index.html
+}
+
+remove_old_objs_dir
+remove_old_coverage_dir
+remove_old_report_dir
+gather_objs
+merge_gcda_to_objs
+gather_coverage
+exclude_data
+generate_report
