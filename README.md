@@ -90,7 +90,11 @@ iOS code coverage test tool.
 1. 将Coverage.info文件全部放置到`CodeCoverage4iOS/coverage`下,如 `Coverage1.info、Coverage2.info、Coverage3.info`
 2. 执行`CodeCoverage4iOS/mergecov` 生成合并后的报告
   
+###参考文献
 
+https://developer.apple.com/library/ios/qa/qa1514/_index.html
+
+http://qualitycoding.org/xcode-code-coverage/
   
 
 
